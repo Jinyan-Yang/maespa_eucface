@@ -1,33 +1,33 @@
-# functions####
-to.pdf <- function(expr, filename, ..., verbose=TRUE) {
-  if(!file.exists(dirname(filename)))
-    dir.create(dirname(filename), recursive=TRUE)
-  if ( verbose )
-    cat(sprintf("Creating %s\n", filename))
-  pdf(filename, ...)
-  on.exit(dev.off())
-  eval.parent(substitute(expr))
-}
-
-
-alpha <- function (colour, alpha = NA) {
-  col <- col2rgb(colour, TRUE)/255
-  if (length(colour) != length(alpha)) {
-    if (length(colour) > 1 && length(alpha) > 1) {
-      stop("Only one of colour and alpha can be vectorised")
-    }
-    if (length(colour) > 1) {
-      alpha <- rep(alpha, length.out = length(colour))
-    }
-    else if (length(alpha) > 1) {
-      col <- col[, rep(1, length(alpha)), drop = FALSE]
-    }
-  }
-  alpha[is.na(alpha)] <- col[4, ][is.na(alpha)]
-  new_col <- rgb(col[1, ], col[2, ], col[3, ], alpha)
-  new_col[is.na(colour)] <- NA
-  new_col
-}
+# # functions####
+# to.pdf <- function(expr, filename, ..., verbose=TRUE) {
+#   if(!file.exists(dirname(filename)))
+#     dir.create(dirname(filename), recursive=TRUE)
+#   if ( verbose )
+#     cat(sprintf("Creating %s\n", filename))
+#   pdf(filename, ...)
+#   on.exit(dev.off())
+#   eval.parent(substitute(expr))
+# }
+# 
+# 
+# alpha <- function (colour, alpha = NA) {
+#   col <- col2rgb(colour, TRUE)/255
+#   if (length(colour) != length(alpha)) {
+#     if (length(colour) > 1 && length(alpha) > 1) {
+#       stop("Only one of colour and alpha can be vectorised")
+#     }
+#     if (length(colour) > 1) {
+#       alpha <- rep(alpha, length.out = length(colour))
+#     }
+#     else if (length(alpha) > 1) {
+#       col <- col[, rep(1, length(alpha)), drop = FALSE]
+#     }
+#   }
+#   alpha[is.na(alpha)] <- col[4, ][is.na(alpha)]
+#   new_col <- rgb(col[1, ], col[2, ], col[3, ], alpha)
+#   new_col[is.na(colour)] <- NA
+#   new_col
+# }
 
 
 makesmoothLAI <- function(dat, timestep="3 days", kgam=15, how=c("byring","mean")){
@@ -93,6 +93,7 @@ fitgam <- function(X,Y,dfr, k=-1, R=NULL){
   
   return(g)
 }
+
 
 
 #' Plot a generalized additive model
@@ -245,15 +246,35 @@ addpoly <- function(x,y1,y2,col=alpha("lightgrey",0.8),...){
 }
 
 
-# get gap fraction data from hiev#####
-library(HIEv)
-facelai <- downloadCSV("FACE_P0037_RA_GAPFRACLAI_OPEN_L2.dat")
-names(facelai) <- c("TIMESTAMP","Ring","Date","Gapfraction.mean",
-                    "Rain_mm_Tot.mean","Gapfraction.sd","Rain_mm_Tot.sd",
-                    "Gapfraction.n","Rain_mm_Tot.n","treatment","maxSDring","LAI")
+# # get gap fraction data from hiev#####
+# library(HIEv)
+# facelai <- downloadCSV("FACE_P0037_RA_GAPFRACLAI_OPEN_L2.dat")
+# names(facelai) <- c("TIMESTAMP","Ring","Date","Gapfraction.mean",
+#                     "Rain_mm_Tot.mean","Gapfraction.sd","Rain_mm_Tot.sd",
+#                     "Gapfraction.n","Rain_mm_Tot.n","treatment","maxSDring","LAI")
+# 
+# 
+# facelai$Date <- as.Date(facelai$Date)
+# 
+# # list of smooth LAIs.
+# sm <- makesmoothLAI(facelai, how="byring", timestep="1 day")
 
+
+
+# get lai from hiev
+facelai <-downloadCSV("FACE_P0037_RA_GAPFRACLAI_CORR_2012-10-26_2022-07-05.csv")
+names(facelai) <- c('row.no',"Ring","Date","Gapfraction.mean",
+                    "Rain_mm_Tot.mean","Gapfraction.sd","Rain_mm_Tot.sd",
+                    "Gapfraction.n","Rain_mm_Tot.n","treatment","LAI",'source')
 
 facelai$Date <- as.Date(facelai$Date)
 
 # list of smooth LAIs.
-sm <- makesmoothLAI(facelai, how="byring", timestep="1 day")
+sm <- makesmoothLAI(facelai, how="byring", timestep="1 day",kgam=30)
+
+# test plot with ring 1
+r1 <- subset(facelai, Ring== "R1")
+with(r1, (plot(Date, LAI)))
+
+s1 <- sm[[1]]
+with(s1, (points(Date, LAIsmooth, col = "red")))

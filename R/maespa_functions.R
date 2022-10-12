@@ -6,8 +6,10 @@ saturate.vp.func <- function(Tc,a=6.12,m=7.59,Tn=240.73){
 
 make_met <- function(startDate= NULL,endDate = NULL){
   
+#if function for if 'ca.df.rds' met data file exists, to not redo calcs - saves time  
   if(!file.exists('cache/ca.df.rds')){
-    source('R/get met.R')
+    #source('r/get met.R')
+  get.met.func.warp(startDate =startDate,endDate=endDate)
   }
   
   met.in <- readRDS('cache/ca.df.rds')
@@ -195,27 +197,33 @@ run_maespa_eucface <- function(ring,runfolder.path,
   
   #get initial swc from hiev -- this bit is not doing anything
   
-  # swc.df <- downloadTOA5(sprintf("FACE_R%s_B1_SoilVars",ring),
-  #                        startDate = startDate,
-  #                        endDate = endDate)
-  # 
-  # swc.df <- subset(swc.df,select = c("Date",
-  #                                    "DateTime",
-  #                                    "Theta5_1_Avg","Theta5_2_Avg",
-  #                                    "Theta30_1_Avg","Theta30_2_Avg",
-  #                                    "Theta75_1_Avg","Theta75_2_Avg"))
-  # swc.df <- swc.df[order(swc.df$DateTime),]
-  # swc.df$swc.0.30 <- (swc.df$Theta5_1_Avg + swc.df$Theta5_2_Avg + swc.df$Theta30_1_Avg +swc.df$Theta30_2_Avg)/4
-  # 
-  # swc.df$swc.30.75 <- (swc.df$Theta75_1_Avg + swc.df$Theta75_2_Avg)/2
+  swc.df <- downloadTOA5(sprintf("FACE_R%s_B1_SoilVars",ring),
+                         startDate = startDate,
+                         endDate = endDate, maxnfiles = 1000)
+
+  swc.df <- subset(swc.df,select = c("Date",
+                                     "DateTime",
+                                     "Theta5_1_Avg","Theta5_2_Avg",
+                                     "Theta30_1_Avg","Theta30_2_Avg",
+                                     "Theta75_1_Avg","Theta75_2_Avg"))
+  swc.df <- swc.df[order(swc.df$DateTime),]
+  swc.df$swc.0.30 <- (swc.df$Theta5_1_Avg + swc.df$Theta5_2_Avg + swc.df$Theta30_1_Avg +swc.df$Theta30_2_Avg)/4
+
+  swc.df$swc.30.75 <- (swc.df$Theta75_1_Avg + swc.df$Theta75_2_Avg)/2
   
-  swc.df <- readRDS('cache/swc.day.df.rds')
+  # swc.df <- readRDS('cache/swc.day.df.rds')
   
   # swc.neutron.ring.df <- readRDS('cache/swc.rds')
-
-  # make sure to use the uptodate maespa
-  file.copy('maespa exe/i_histo_m.exe',runfolder.path,overwrite = TRUE)
-  file.copy('maespa exe/maespa_ori.exe',runfolder.path,overwrite = TRUE)
+  
+##############################################
+### make sure to use the uptodate maespa #####
+##############################################
+  # 
+  # # file.copy('maespa exe/i_histo_m.exe',runfolder.path,overwrite = TRUE)
+  # file.copy('C:/Users/90948066/source/repos/maespa/Release/maespa.exe',runfolder.path,overwrite = TRUE)
+  # # file.copy('C:/Users/magnolia/source/repos/maespa/Release',runfolder.path,overwrite = TRUE)
+  # 
+  #C:\Users\magnolia\source\repos\maespa\x64\Release
   setwd(runfolder.path)
   # Set simulation dates for given time
   replaceNameList("dates","confile.dat", vals=list(startdate=format(as.Date(startDate), "%d/%m/%y"),
@@ -393,13 +401,13 @@ run_maespa_eucface <- function(ring,runfolder.path,
   print('met updated')
   
   # run maespa
-  print(sprintf("Ring %s start",ring))
-  if(identical(TRUE,vc.vpd)){
-    shell("i_histo_m.exe")
-  }else{
-    shell("maespa_ori.exe")
-  }
-  
+  # print(sprintf("Ring %s start",ring))
+  # if(identical(TRUE,vc.vpd)){
+  #   shell("i_histo_m.exe")
+  # }else{
+  #   shell("maespa_ori.exe")
+  # }
+  shell('maespa.exe')
   print(sprintf("Ring %s finished",ring))
 }
 
@@ -414,16 +422,18 @@ eucGPP <- function(hourly.data = FALSE,startDate= NULL,endDate = NULL,rings = 1:
                    ca.change =FALSE,
                    photo.acli = FALSE,
                    ...){
- 
+  
+  startDate<<- startDate
+  endDate<<- endDate
   time.start <- Sys.time()
   update.tree.f(...,
                 startDate= startDate,
                 endDate = endDate)
-  update.phy.f(vj.ratio.test = vj.ratio.test,
-               vj.ratio = vj.ratio,
-               swc.g1=swc.g1,
-               photo.acli = photo.acli,
-               ...)
+  # update.phy.f(vj.ratio.test = vj.ratio.test,
+  #              vj.ratio = vj.ratio,
+  #              swc.g1=swc.g1,
+  #              photo.acli = photo.acli,
+  #              ...)
   
     for (ring in rings){
     run_maespa_eucface(ring = ring,

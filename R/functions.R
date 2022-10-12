@@ -253,8 +253,9 @@ addpoly <- function(x,y1,y2,col=alpha("lightgrey",0.8),...){
 # }
 
 ReadInput <- function(ring){
-  # fn <- sprintf("Rings/Ring%s/runfolder/met_ListOfAllVaule.csv",ring)
+  # fn <- sprintf("Rings/Ring%s/runfolder/met_ListOfAllVaule.csv",1)
   # InputValue <- read.csv(fn)
+  # ring=1
 
   con.path <- file.path(sprintf("Rings/Ring%s/runfolder",ring),"confile.dat")
   con.ls <- readLines(con.path)
@@ -280,9 +281,10 @@ ReadInput <- function(ring){
 
  # names(met)<-c("CA","PRESS","WIND",
  #               "PPT","PAR","TAIR","RH")
+ 
  met <- readmet(fn)
-
- met$Date <- rep(seq(s.date,e.date,by="1 day"),each=48)
+# met.date.vec <-  rep(seq(s.date,e.date,by="1 day"),each=48)
+ met$Date <- rep(seq(s.date,e.date,by="1 day"),each=48, length.out=nrow(met))
  
 return(met)
 }

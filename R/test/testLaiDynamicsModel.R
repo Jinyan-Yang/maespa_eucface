@@ -127,9 +127,9 @@ library(lubridate)
 library(dplyr)
 library(doBy)
 sap.lai.df <- readRDS("sap_lai.rds")
-startDate <- min(sap.lai.df$Date,na.rm=TRUE)
-
-endDate <- max(sap.lai.df$Date,na.rm=TRUE)
+# startDate <- min(sap.lai.df$Date,na.rm=TRUE)
+# 
+# endDate <- max(sap.lai.df$Date,na.rm=TRUE)
 
 # ROS weather data
 ros05 <- downloadTOA5("ROS_WS_Table05",

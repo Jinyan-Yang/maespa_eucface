@@ -1,9 +1,11 @@
 
+
 stem.area <- 0.8
+par(mfrow=c(2,1), tcl=-0.7, family="Date", mai=c(0.5,0.8,0.2,0.2))
 
 palette(c("red","lightskyblue","navy","coral","orange","blue"))
 
-plot(LAIsmooth-stem.area~Date,data = sm[[1]],type="l",ylim=c(0.4,1.6),col=1)
+plot(LAIsmooth-stem.area~Date,data = sm[[1]],type="l",ylim=c(0.4,1.6),col=1, ylab = "LAI", xlab = "Year")
 for(i in 2:6){
   points(LAIsmooth-stem.area~Date,data = sm[[i]],type="l",col=i)
 }
@@ -34,7 +36,7 @@ tran.func <- function(cols,alpha=0.1){
 
 plot(LAIsmooth.mean-stem.area~Date,data = lai.sum[lai.sum$C_treat == "E",],
      type='l',col="red",
-     ylim=c(0.4,1.6))
+     ylim=c(0.4,1.6), xlab = "Year", ylab = "Mean LAI")
 polygon(x = c(lai.sum[lai.sum$C_treat == "E",]$Date,
               rev(lai.sum[lai.sum$C_treat == "E",]$Date)),
         y = c(c(lai.sum[lai.sum$C_treat == "E",]$LAIsmooth.mean-stem.area
